@@ -1,0 +1,41 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Traveloggers
+    network: mainnet
+    source:
+      address: "0x8515ba8ef2cf2f2ba44b26ff20337d7a2bc5e6d8"
+      abi: Traveloggers
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - LogbookNewLog
+        - LotteryWinners
+        - OwnershipTransferred
+        - PreOrderMinted
+        - Transfer
+      abis:
+        - name: Traveloggers
+          file: ./abis/Traveloggers.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: LogbookNewLog(uint256,uint256,address)
+          handler: handleLogbookNewLog
+        - event: LotteryWinners(address[])
+          handler: handleLotteryWinners
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PreOrderMinted(address,uint256)
+          handler: handlePreOrderMinted
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/mapping.ts
