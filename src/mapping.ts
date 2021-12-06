@@ -1,4 +1,5 @@
 import { BigInt } from "@graphprotocol/graph-ts"
+
 import {
   Traveloggers,
   Approval,
@@ -7,81 +8,64 @@ import {
   LotteryWinners,
   OwnershipTransferred,
   PreOrderMinted,
-  Transfer
+  Transfer,
 } from "../generated/Traveloggers/Traveloggers"
-import { ExampleEntity } from "../generated/schema"
+import { Log, Logbook } from "../generated/schema"
 
-export function handleApproval(event: Approval): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+// create logbook or update owner
+export function handleTransfer(event: Transfer): void {
+  let logbook = Logbook.load(`${event.params.tokenId}`)
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+  if (!logbook) {
+    const traveloggers = Traveloggers.bind(event.address)
 
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+    logbook = new Logbook(event.params.tokenId.toString())
+    logbook.uri = traveloggers.tokenURI(event.params.tokenId)
+    logbook.length = BigInt.fromI32(0)
   }
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.owner = event.params.owner
-  entity.approved = event.params.approved
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract._randomDraw(...)
-  // - contract.balanceOf(...)
-  // - contract.batchMint(...)
-  // - contract.contractURI(...)
-  // - contract.getApproved(...)
-  // - contract.inPreOrder(...)
-  // - contract.isApprovedForAll(...)
-  // - contract.logbook(...)
-  // - contract.name(...)
-  // - contract.owner(...)
-  // - contract.ownerOf(...)
-  // - contract.preOrderExist(...)
-  // - contract.preOrderGet(...)
-  // - contract.preOrderLimit(...)
-  // - contract.preOrderMinAmount(...)
-  // - contract.preOrderMintIndex(...)
-  // - contract.preOrderSupply(...)
-  // - contract.readLogbook(...)
-  // - contract.supportsInterface(...)
-  // - contract.symbol(...)
-  // - contract.tokenURI(...)
-  // - contract.totalSupply(...)
+  logbook.owner = event.params.to
+  logbook.save()
 }
 
-export function handleApprovalForAll(event: ApprovalForAll): void {}
+// create logs
+export function handleLogbookNewLog(event: LogbookNewLog): void {
+  const traveloggers = Traveloggers.bind(event.address)
 
-export function handleLogbookNewLog(event: LogbookNewLog): void {}
+  // concat token id and log index as log id
+  const log = new Log(
+    `${event.params.tokenId.toString()}-${event.params.index.toString()}`
+  )
+
+  // sender address
+  log.author = event.params.sender
+
+  // logbook id
+  log.book = `${event.params.tokenId.toString()}`
+
+  // log timestamp
+  log.createdAt = event.block.timestamp
+
+  // log content
+  const allContent = traveloggers.readLogbook(event.params.tokenId).logs
+  const index = event.params.index.toI32()
+  log.content = allContent[index].message
+
+  // save changes
+  log.save()
+
+  // update logbook length
+  const logbook = new Logbook(event.params.tokenId.toString())
+  logbook.length = event.params.index
+  logbook.save()
+}
+
+export function handleApproval(event: Approval): void {}
+
+export function handleApprovalForAll(event: ApprovalForAll): void {}
 
 export function handleLotteryWinners(event: LotteryWinners): void {}
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
 export function handlePreOrderMinted(event: PreOrderMinted): void {}
-
-export function handleTransfer(event: Transfer): void {}

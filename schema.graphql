@@ -1,6 +1,19 @@
-type ExampleEntity @entity {
+## Logbook
+
+type Logbook @entity {
+  # as ERC721 tokenId
   id: ID!
-  count: BigInt!
+  uri: String!
   owner: Bytes! # address
-  approved: Bytes! # address
+  length: BigInt
+  logs: [Log!] @derivedFrom(field: "book")
+}
+
+type Log @entity {
+  # as Logbook tokenId and `index` in `LogbookNewLog`: `${tokenId}-${index}`
+  id: ID!
+  author: Bytes! # address
+  content: String!
+  book: Logbook!
+  createdAt: BigInt
 }
