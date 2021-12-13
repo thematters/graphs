@@ -1,0 +1,28 @@
+## The Space
+
+# Property traded under Harberger tax
+# ERC721 tokens representing land
+# corresponds to multiple assets
+type Property @entity {
+  # as ERC721 tokenId
+  id: ID!
+  # content specified by owner
+  uri: String!
+  # set by owner
+  price: BigInt!
+  # owner address
+  owner: Bytes! 
+  # underlying assets / pixels
+  assets: [Asset!] @derivedFrom(field: "property")
+}
+
+# Underlying assets included in Harberger property
+# can be colored as a pixel
+type Asset @entity {
+  # sequential, can be mapped into 2-d coordinates
+  id: ID!
+  # color hex
+  color: String!
+  # could be null in initial state
+  property: Property
+}
