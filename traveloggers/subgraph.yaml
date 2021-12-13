@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0x8515ba8ef2cf2f2ba44b26ff20337d7a2bc5e6d8"
       abi: Traveloggers
-      startBlock: 13553873
+      startBlock: 13553000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5

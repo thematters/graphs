@@ -30,6 +30,11 @@ export function handleTransfer(event: Transfer): void {
 
 // create logs
 export function handleLogbookNewLog(event: LogbookNewLog): void {
+  // update logbook length
+  const logbook = new Logbook(event.params.tokenId.toString())
+  logbook.length = event.params.index.plus(BigInt.fromI32(1))
+  logbook.save()
+
   const traveloggers = Traveloggers.bind(event.address)
 
   // concat token id and log index as log id
@@ -53,11 +58,6 @@ export function handleLogbookNewLog(event: LogbookNewLog): void {
 
   // save changes
   log.save()
-
-  // update logbook length
-  const logbook = new Logbook(event.params.tokenId.toString())
-  logbook.length = event.params.index
-  logbook.save()
 }
 
 export function handleApproval(event: Approval): void {}
