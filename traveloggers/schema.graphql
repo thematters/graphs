@@ -1,19 +1,78 @@
 ## Logbook
 
 type Logbook @entity {
-  # as ERC721 tokenId
+  # ERC721 tokenId
   id: ID!
-  uri: String!
-  owner: Bytes! # address
-  length: BigInt
-  logs: [Log!] @derivedFrom(field: "book")
+
+  # owner address 
+  owner: Account!
+
+  # token metadata
+  tokenURI: String!
+
+  title: String!
+  description: String!
+  forkPrice: BigInt!
+
+  # timestamp of token was minted
+  createdAt: BigInt!
+
+  logs: [Log!]
+  forks: [Fork!]
+  donations: [Donation!]
+
+  logCount: BigInt!
+  transferCount: BigInt!
+  forkCount: BigInt!
+  donationCount: BigInt!
 }
 
+# From `Publish` event
 type Log @entity {
-  # as Logbook tokenId and `index` in `LogbookNewLog`: `${tokenId}-${index}`
+  # content hash
   id: ID!
-  author: Bytes! # address
+
+  sender: Account!
+
   content: String!
-  book: Logbook!
+
+  source: Logbook!
+
   createdAt: BigInt
+}
+
+type Account @entity {
+  # address
+  id: ID!
+
+  # withdrawable balance
+  balance: BigInt!
+
+  # logbooks owned by this account
+  logbooks: [Logbook!]
+}
+
+# From `Fork` event
+type Fork @entity {
+  # `${from.id}-${to.id}`
+  id: ID!
+
+  from: Logbook!
+  to: Logbook!
+
+  # fork price
+  amount: BigInt!
+}
+
+# From `Donate` event
+type Donation @entity {
+  # `${logbook.id}-${index}`
+  id: ID!
+
+  to: Logbook!
+
+  sender: Account!
+  recipient: Account!
+
+  amount: BigInt!
 }
