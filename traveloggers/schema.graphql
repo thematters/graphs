@@ -38,6 +38,9 @@ type Log @entity {
 
   source: Logbook!
 
+  # from `Fork.endLogContentHash` event
+  forkedBy: [Logbook!]
+
   createdAt: BigInt
 }
 
