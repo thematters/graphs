@@ -1,10 +1,28 @@
-# Repo for The Graph subgraphs
+# The Graph subgraphs of Matters 
 
-- install graph CLI: `npm install -g @graphprotocol/graph-cli`
-- 
-- generate templates & types: `graph codegen`
-- build: `graph build`
-- auth: `graph auth --studio <DEPLOY_KEY>` (in 1pass)
-- deploy: `graph deploy --studio <SUBGRAPH_SLUG>` (e.g. `traveloggers`)
+## Getting Started
 
-See More: https://thegraph.com/docs/developer/quick-start
+Install the Graph CLI
+
+```bash
+npm install -g @graphprotocol/graph-cli
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+## Deploy
+
+```bash
+# Codegen
+npm run codegen -- -o logbook/generated/ logbook/subgraph.yaml 
+
+# Build
+npm run build -- -o logbook/build/ logbook/subgraph.yaml
+
+# Deploy
+npm run deploy -- -o logbook/build/ thematters/logbook logbook/subgraph.yaml
+```

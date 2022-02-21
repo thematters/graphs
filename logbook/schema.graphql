@@ -1,0 +1,79 @@
+type Logbook @entity {
+  # logbook token id
+  id: ID!
+
+  # owner address 
+  owner: Account!
+
+  # token metadata
+  tokenURI: String!
+
+  # block.timestamp of token mint
+  createdAt: BigInt!
+
+  title: String!
+  description: String!
+  forkPrice: BigInt!
+
+  logs: [Log!]
+  # forks: [Fork!]
+  # donations: [Donation!]
+
+  # counts
+  logCount: BigInt!
+  # forkCount: BigInt!
+  # donationCount: BigInt!
+  transferCount: BigInt!
+}
+
+type Log @entity {
+  # content hash
+  id: ID!
+
+  sender: Account!
+
+  content: String!
+
+  # logbook that first published to
+  source: Logbook!
+
+  # forkedBy: [Logbook!]
+
+  # block.timestamp of log creation
+  createdAt: BigInt!
+}
+
+type Account @entity {
+  # address
+  id: ID!
+
+  # withdrawable balance
+  balance: BigInt!
+
+  # logbooks owned by this account
+  logbooks: [Logbook!]
+}
+
+# type Fork @entity {
+#   # `${from.id}-${to.id}`
+#   id: ID!
+
+#   from: Logbook!
+#   to: Logbook!
+
+#   # fork price
+#   amount: BigInt!
+# }
+
+# type Donation @entity {
+#   # `${logbook.id}-${index}`
+#   id: ID!
+
+#   to: Logbook!
+
+#   sender: Account!
+#   recipient: Account!
+
+#   amount: BigInt!
+# }
+
