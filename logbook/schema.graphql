@@ -2,11 +2,11 @@ type Logbook @entity {
   # logbook token id
   id: ID!
 
-  # owner address 
+  # owner address
   owner: Account!
 
-  # token metadata
-  tokenURI: String!
+  # base64 encoded SVG
+  cover: String!
 
   # block.timestamp of token mint
   createdAt: BigInt!
@@ -15,14 +15,14 @@ type Logbook @entity {
   description: String!
   forkPrice: BigInt!
 
-  logs: [Log!]
-  # forks: [Fork!]
-  # donations: [Donation!]
+  logs: [Log!]!
+  forks: [Fork!]! @derivedFrom(field: "to")
+  donations: [Donation!]! @derivedFrom(field: "to")
 
   # counts
   logCount: BigInt!
-  # forkCount: BigInt!
-  # donationCount: BigInt!
+  forkCount: BigInt!
+  donationCount: BigInt!
   transferCount: BigInt!
 }
 
@@ -30,14 +30,15 @@ type Log @entity {
   # content hash
   id: ID!
 
-  sender: Account!
+  author: Account!
 
   content: String!
 
   # logbook that first published to
-  source: Logbook!
+  source: Logbook
 
-  # forkedBy: [Logbook!]
+  # logbooks that have this log
+  logbooks: [Logbook!]!
 
   # block.timestamp of log creation
   createdAt: BigInt!
@@ -51,29 +52,56 @@ type Account @entity {
   balance: BigInt!
 
   # logbooks owned by this account
-  logbooks: [Logbook!]
+  logbooks: [Logbook!]!
 }
 
-# type Fork @entity {
-#   # `${from.id}-${to.id}`
-#   id: ID!
+type Fork @entity {
+  # `${from.id}-${to.id}`
+  id: ID!
 
-#   from: Logbook!
-#   to: Logbook!
+  from: Logbook!
+  to: Logbook!
 
-#   # fork price
-#   amount: BigInt!
-# }
+  end: Log!
 
-# type Donation @entity {
-#   # `${logbook.id}-${index}`
-#   id: ID!
+  amount: BigInt!
 
-#   to: Logbook!
+  # block.timestamp
+  createdAt: BigInt!
+}
 
-#   sender: Account!
-#   recipient: Account!
+type Donation @entity {
+  # transaction.hash
+  id: ID!
 
-#   amount: BigInt!
-# }
+  to: Logbook!
 
+  donor: Account!
+
+  amount: BigInt!
+
+  # block.timestamp
+  createdAt: BigInt!
+}
+
+type Pay @entity {
+  # transaction.hash
+  id: ID!
+
+  to: Logbook!
+
+  sender: Account!
+  recipient: Account!
+
+  amount: BigInt!
+
+  purpose: RoyaltyPurpose!
+
+  # block.timestamp
+  createdAt: BigInt!
+}
+
+enum RoyaltyPurpose {
+  Fork
+  Donate
+}

@@ -1,97 +1,218 @@
-import { BigInt } from "@graphprotocol/graph-ts"
 import {
-  Logbook,
-  Approval,
-  ApprovalForAll,
   Donate,
-  Fork,
-  OwnershipTransferred,
-  Pay,
+  Fork as ForkEvent,
+  Pay as PayEvent,
+  Content,
   Publish,
   SetDescription,
   SetForkPrice,
   SetTitle,
   Transfer,
   Withdraw
-} from "../generated/Logbook/Logbook"
-import { ExampleEntity } from "../generated/schema"
+} from "../generated/Logbook/Logbook";
+import {
+  Logbook,
+  Log,
+  Account,
+  Donation,
+  Fork,
+  Pay
+} from "../generated/schema";
+import { getOrCreateAccount, ONE_BI, ZERO_ADDRESS, ZERO_BI } from "./helpers";
 
-export function handleApproval(event: Approval): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+export function handleDonate(event: Donate): void {
+  const logbookId = event.params.tokenId.toHexString();
+  const donor = getOrCreateAccount(event.params.donor);
+  const txHash = event.transaction.hash.toHexString();
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+  // create donation
+  let donation = new Donation(txHash);
+  donation.to = logbookId;
+  donation.donor = donor.id;
+  donation.amount = event.params.amount;
+  donation.createdAt = event.block.timestamp;
+  donation.save();
 
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+  // update logbook
+  let logbook = Logbook.load(logbookId);
+  if (logbook) {
+    logbook.donations.push(donation.id);
+    logbook.donationCount = logbook.donationCount.plus(ONE_BI);
+    logbook.save();
   }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.owner = event.params.owner
-  entity.approved = event.params.approved
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.balanceOf(...)
-  // - contract.books(...)
-  // - contract.getApproved(...)
-  // - contract.getBalance(...)
-  // - contract.getLogbook(...)
-  // - contract.isApprovedForAll(...)
-  // - contract.logs(...)
-  // - contract.multicall(...)
-  // - contract.name(...)
-  // - contract.owner(...)
-  // - contract.ownerOf(...)
-  // - contract.publicSale(...)
-  // - contract.publicSalePrice(...)
-  // - contract.supportsInterface(...)
-  // - contract.symbol(...)
-  // - contract.togglePublicSale(...)
-  // - contract.tokenURI(...)
 }
 
-export function handleApprovalForAll(event: ApprovalForAll): void {}
+export function handleFork(event: ForkEvent): void {
+  const fromLogbookId = event.params.tokenId.toHexString();
+  const toLogbookId = event.params.newTokenId.toHexString();
+  const endLogId = event.params.end.toHexString();
 
-export function handleDonate(event: Donate): void {}
+  // create fork
+  const forkId = `${fromLogbookId}-${toLogbookId}`;
+  let fork = new Fork(forkId);
+  fork.from = fromLogbookId;
+  fork.to = toLogbookId;
+  fork.end = endLogId;
+  fork.amount = event.params.amount;
+  fork.createdAt = event.block.timestamp;
+  fork.save();
 
-export function handleFork(event: Fork): void {}
+  // update "from" logbook
+  let logbook = Logbook.load(fromLogbookId);
+  if (logbook) {
+    logbook.forks.push(fork.id);
+    logbook.forkCount = logbook.forkCount.plus(ONE_BI);
+    logbook.save();
+  }
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
+  // update log
+  let log = Log.load(endLogId);
+  if (log) {
+    log.logbooks.push(toLogbookId);
+    log.save();
+  }
+}
 
-export function handlePay(event: Pay): void {}
+export function handlePay(event: PayEvent): void {
+  const logbookId = event.params.tokenId.toHexString();
+  const sender = getOrCreateAccount(event.params.sender);
+  const recipient = getOrCreateAccount(event.params.recipient);
+  const amount = event.params.amount;
+  const purpose = event.params.purpose;
+  const txHash = event.transaction.hash.toHexString();
 
-export function handlePublish(event: Publish): void {}
+  // create pay
+  let pay = new Pay(txHash);
+  pay.to = logbookId;
+  pay.sender = sender.id;
+  pay.recipient = recipient.id;
+  pay.amount = amount;
+  pay.purpose = purpose === 0 ? "Fork" : "Donate";
+  pay.createdAt = event.block.timestamp;
+  pay.save();
 
-export function handleSetDescription(event: SetDescription): void {}
+  // update account
+  recipient.balance.plus(amount);
+  recipient.save();
+}
 
-export function handleSetForkPrice(event: SetForkPrice): void {}
+export function handleContent(event: Content): void {
+  const logId = event.params.contentHash.toHexString();
+  const author = getOrCreateAccount(event.params.author);
 
-export function handleSetTitle(event: SetTitle): void {}
+  // create log
+  let log = Log.load(logId);
+  if (log === null) {
+    log = new Log(logId);
+    log.author = author.id;
+    log.content = event.params.content;
+    log.source = null;
+    log.logbooks = [];
+    log.createdAt = event.block.timestamp;
+    log.save();
+  }
+}
 
-export function handleTransfer(event: Transfer): void {}
+export function handlePublish(event: Publish): void {
+  const logbookId = event.params.tokenId.toHexString();
+  const logId = event.params.contentHash.toHexString();
 
-export function handleWithdraw(event: Withdraw): void {}
+  // update logbook
+  let logbook = Logbook.load(logbookId);
+  if (logbook) {
+    logbook.logs.push(logId);
+    logbook.logCount = logbook.logCount.plus(ONE_BI);
+  }
+
+  // update log
+  let log = Log.load(logId);
+  if (log) {
+    if (!log.source) {
+      log.source = logbookId;
+    }
+
+    log.logbooks.push(logbookId);
+    log.save();
+  }
+}
+
+export function handleSetDescription(event: SetDescription): void {
+  const logbookId = event.params.tokenId.toHexString();
+  let logbook = Logbook.load(logbookId);
+
+  if (logbook) {
+    logbook.description = event.params.description;
+    logbook.save();
+  }
+}
+
+export function handleSetForkPrice(event: SetForkPrice): void {
+  const logbookId = event.params.tokenId.toHexString();
+  let logbook = Logbook.load(logbookId);
+
+  if (logbook) {
+    logbook.forkPrice = event.params.amount;
+    logbook.save();
+  }
+}
+
+export function handleSetTitle(event: SetTitle): void {
+  const logbookId = event.params.tokenId.toHexString();
+  let logbook = Logbook.load(logbookId);
+
+  if (logbook) {
+    logbook.title = event.params.title;
+    logbook.save();
+  }
+}
+
+export function handleTransfer(event: Transfer): void {
+  const from = getOrCreateAccount(event.params.from);
+  const to = getOrCreateAccount(event.params.to);
+
+  // get or create logbook
+  const logbookId = event.params.tokenId.toHexString();
+  let logbook = Logbook.load(logbookId);
+  if (logbook === null) {
+    logbook = new Logbook(logbookId);
+    logbook.cover = ""; // TODO
+    logbook.createdAt = event.block.timestamp;
+    logbook.title = "";
+    logbook.description = "";
+    logbook.forkPrice = ZERO_BI;
+    logbook.logs = [];
+    logbook.forks = [];
+    logbook.donations = [];
+    logbook.logCount = ZERO_BI;
+    logbook.forkCount = ZERO_BI;
+    logbook.donationCount = ZERO_BI;
+    logbook.transferCount = ZERO_BI;
+  } else {
+    logbook.transferCount = logbook.transferCount.plus(ONE_BI);
+  }
+  logbook.owner = to.id;
+  logbook.save();
+
+  // update "from" owner
+  if (from.id !== ZERO_ADDRESS) {
+    from.logbooks.push(logbookId);
+    from.save();
+  }
+
+  // update "to" owner
+  const index = from.logbooks.indexOf(logbookId);
+  if (index >= 0) {
+    to.logbooks.splice(index, 1);
+    to.save();
+  }
+}
+
+export function handleWithdraw(event: Withdraw): void {
+  const accountId = event.params.account.toHexString();
+  let account = Account.load(accountId);
+
+  if (!account) return;
+
+  account.balance = ZERO_BI;
+  account.save();
+}

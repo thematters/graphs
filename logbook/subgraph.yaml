@@ -1,6 +1,11 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
+description: Logbook is a collaborative content creation dApp on Polygon.
+repository: https://github.com/thematters/subgraphs
 schema:
   file: ./schema.graphql
+features:
+  - fullTextSearch
+  - nonFatalErrors
 dataSources:
   - kind: ethereum
     name: Logbook
@@ -8,40 +13,28 @@ dataSources:
     source:
       address: "0x655308c72dde303abda1d5ff31b3c2350dde150e"
       abi: Logbook
+      startBlock: 25127575
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Approval
-        - ApprovalForAll
-        - Donate
-        - Fork
-        - OwnershipTransferred
-        - Pay
-        - Publish
-        - SetDescription
-        - SetForkPrice
-        - SetTitle
-        - Transfer
-        - Withdraw
+        - Logbook
+        - Log
+        - Account
       abis:
         - name: Logbook
           file: ./abis/Logbook.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,indexed uint256)
-          handler: handleApproval
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
         - event: Donate(indexed uint256,indexed address,uint256)
           handler: handleDonate
         - event: Fork(indexed uint256,indexed uint256,indexed address,uint256,uint256)
           handler: handleFork
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: Pay(indexed uint256,indexed address,indexed address,uint256,uint8)
           handler: handlePay
-        - event: Publish(indexed uint256,indexed address,indexed bytes32,string)
+        - event: Content(indexed address,indexed bytes32,string)
+          handler: handleContent
+        - event: Publish(indexed uint256,indexed bytes32)
           handler: handlePublish
         - event: SetDescription(indexed uint256,string)
           handler: handleSetDescription

@@ -62,6 +62,32 @@ export class ApprovalForAll__Params {
   }
 }
 
+export class Content extends ethereum.Event {
+  get params(): Content__Params {
+    return new Content__Params(this);
+  }
+}
+
+export class Content__Params {
+  _event: Content;
+
+  constructor(event: Content) {
+    this._event = event;
+  }
+
+  get author(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get contentHash(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get content(): string {
+    return this._event.parameters[2].value.toString();
+  }
+}
+
 export class Donate extends ethereum.Event {
   get params(): Donate__Params {
     return new Donate__Params(this);
@@ -195,16 +221,8 @@ export class Publish__Params {
     return this._event.parameters[0].value.toBigInt();
   }
 
-  get author(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
   get contentHash(): Bytes {
-    return this._event.parameters[2].value.toBytes();
-  }
-
-  get content(): string {
-    return this._event.parameters[3].value.toString();
+    return this._event.parameters[1].value.toBytes();
   }
 }
 

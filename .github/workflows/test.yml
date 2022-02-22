@@ -1,0 +1,26 @@
+name: Test
+
+on:
+  push:
+    branches-ignore:
+      - master
+      - main
+      - develop
+
+jobs:
+  run-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Test (Logbook)
+        run: |
+          npm run codegen -- -o logbook/generated/ logbook/subgraph.yaml \
+          && npm run build -- -o logbook/build/ logbook/subgraph.yaml
