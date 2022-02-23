@@ -11,13 +11,16 @@ type Logbook @entity {
   # block.timestamp of token mint
   createdAt: BigInt!
 
+  # block.timestamp of latest log published
+  loggedAt: BigInt!
+
   title: String!
   description: String!
   forkPrice: BigInt!
 
-  logs: [Log!]!
-  forks: [Fork!]! @derivedFrom(field: "to")
-  donations: [Donation!]! @derivedFrom(field: "to")
+  logs: [Log!]
+  forks: [Fork!] @derivedFrom(field: "from")
+  donations: [Donation!] @derivedFrom(field: "to")
 
   # counts
   logCount: BigInt!
@@ -38,7 +41,7 @@ type Log @entity {
   source: Logbook
 
   # logbooks that have this log
-  logbooks: [Logbook!]!
+  logbooks: [Logbook!]
 
   # block.timestamp of log creation
   createdAt: BigInt!
@@ -52,7 +55,7 @@ type Account @entity {
   balance: BigInt!
 
   # logbooks owned by this account
-  logbooks: [Logbook!]!
+  logbooks: [Logbook!] @derivedFrom(field: "owner")
 }
 
 type Fork @entity {

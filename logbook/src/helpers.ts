@@ -1,21 +1,6 @@
-import { log, BigInt, BigDecimal, Address } from "@graphprotocol/graph-ts";
+import { BigInt, Address } from "@graphprotocol/graph-ts";
 
-import {
-  Approval,
-  ApprovalForAll,
-  Donate,
-  Fork,
-  OwnershipTransferred,
-  Pay,
-  Content,
-  Publish,
-  SetDescription,
-  SetForkPrice,
-  SetTitle,
-  Transfer,
-  Withdraw
-} from "../generated/Logbook/Logbook";
-import { Logbook, Log, Account } from "../generated/schema";
+import { Account } from "../generated/schema";
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const ZERO_BI = BigInt.fromI32(0);
@@ -29,7 +14,6 @@ export function getOrCreateAccount(address: Address): Account {
   if (account === null) {
     account = new Account(id);
     account.balance = ZERO_BI;
-    account.logbooks = [];
     account.save();
   }
 

@@ -36,7 +36,6 @@ export function handleDonate(event: Donate): void {
   // update logbook
   let logbook = Logbook.load(logbookId);
   if (logbook) {
-    logbook.donations.push(donation.id);
     logbook.donationCount = logbook.donationCount.plus(ONE_BI);
     logbook.save();
   }
@@ -60,7 +59,6 @@ export function handleFork(event: ForkEvent): void {
   // update "from" logbook
   let logbook = Logbook.load(fromLogbookId);
   if (logbook) {
-    logbook.forks.push(fork.id);
     logbook.forkCount = logbook.forkCount.plus(ONE_BI);
     logbook.save();
   }
@@ -120,6 +118,7 @@ export function handlePublish(event: Publish): void {
   // update logbook
   let logbook = Logbook.load(logbookId);
   if (logbook) {
+    logbook.loggedAt = event.block.timestamp;
     logbook.logs.push(logId);
     logbook.logCount = logbook.logCount.plus(ONE_BI);
   }
@@ -181,8 +180,6 @@ export function handleTransfer(event: Transfer): void {
     logbook.description = "";
     logbook.forkPrice = ZERO_BI;
     logbook.logs = [];
-    logbook.forks = [];
-    logbook.donations = [];
     logbook.logCount = ZERO_BI;
     logbook.forkCount = ZERO_BI;
     logbook.donationCount = ZERO_BI;
@@ -192,19 +189,6 @@ export function handleTransfer(event: Transfer): void {
   }
   logbook.owner = to.id;
   logbook.save();
-
-  // update "from" owner
-  if (from.id !== ZERO_ADDRESS) {
-    from.logbooks.push(logbookId);
-    from.save();
-  }
-
-  // update "to" owner
-  const index = from.logbooks.indexOf(logbookId);
-  if (index >= 0) {
-    to.logbooks.splice(index, 1);
-    to.save();
-  }
 }
 
 export function handleWithdraw(event: Withdraw): void {

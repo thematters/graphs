@@ -19,10 +19,10 @@ export class Logbook extends Entity {
     this.set("owner", Value.fromString(""));
     this.set("cover", Value.fromString(""));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
+    this.set("loggedAt", Value.fromBigInt(BigInt.zero()));
     this.set("title", Value.fromString(""));
     this.set("description", Value.fromString(""));
     this.set("forkPrice", Value.fromBigInt(BigInt.zero()));
-    this.set("logs", Value.fromStringArray(new Array(0)));
     this.set("logCount", Value.fromBigInt(BigInt.zero()));
     this.set("forkCount", Value.fromBigInt(BigInt.zero()));
     this.set("donationCount", Value.fromBigInt(BigInt.zero()));
@@ -82,6 +82,15 @@ export class Logbook extends Entity {
     this.set("createdAt", Value.fromBigInt(value));
   }
 
+  get loggedAt(): BigInt {
+    let value = this.get("loggedAt");
+    return value!.toBigInt();
+  }
+
+  set loggedAt(value: BigInt) {
+    this.set("loggedAt", Value.fromBigInt(value));
+  }
+
   get title(): string {
     let value = this.get("title");
     return value!.toString();
@@ -109,31 +118,55 @@ export class Logbook extends Entity {
     this.set("forkPrice", Value.fromBigInt(value));
   }
 
-  get logs(): Array<string> {
+  get logs(): Array<string> | null {
     let value = this.get("logs");
-    return value!.toStringArray();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
   }
 
-  set logs(value: Array<string>) {
-    this.set("logs", Value.fromStringArray(value));
+  set logs(value: Array<string> | null) {
+    if (!value) {
+      this.unset("logs");
+    } else {
+      this.set("logs", Value.fromStringArray(<Array<string>>value));
+    }
   }
 
-  get forks(): Array<string> {
+  get forks(): Array<string> | null {
     let value = this.get("forks");
-    return value!.toStringArray();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
   }
 
-  set forks(value: Array<string>) {
-    this.set("forks", Value.fromStringArray(value));
+  set forks(value: Array<string> | null) {
+    if (!value) {
+      this.unset("forks");
+    } else {
+      this.set("forks", Value.fromStringArray(<Array<string>>value));
+    }
   }
 
-  get donations(): Array<string> {
+  get donations(): Array<string> | null {
     let value = this.get("donations");
-    return value!.toStringArray();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
   }
 
-  set donations(value: Array<string>) {
-    this.set("donations", Value.fromStringArray(value));
+  set donations(value: Array<string> | null) {
+    if (!value) {
+      this.unset("donations");
+    } else {
+      this.set("donations", Value.fromStringArray(<Array<string>>value));
+    }
   }
 
   get logCount(): BigInt {
@@ -180,7 +213,6 @@ export class Log extends Entity {
 
     this.set("author", Value.fromString(""));
     this.set("content", Value.fromString(""));
-    this.set("logbooks", Value.fromStringArray(new Array(0)));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
   }
 
@@ -245,13 +277,21 @@ export class Log extends Entity {
     }
   }
 
-  get logbooks(): Array<string> {
+  get logbooks(): Array<string> | null {
     let value = this.get("logbooks");
-    return value!.toStringArray();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
   }
 
-  set logbooks(value: Array<string>) {
-    this.set("logbooks", Value.fromStringArray(value));
+  set logbooks(value: Array<string> | null) {
+    if (!value) {
+      this.unset("logbooks");
+    } else {
+      this.set("logbooks", Value.fromStringArray(<Array<string>>value));
+    }
   }
 
   get createdAt(): BigInt {
@@ -270,7 +310,6 @@ export class Account extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("balance", Value.fromBigInt(BigInt.zero()));
-    this.set("logbooks", Value.fromStringArray(new Array(0)));
   }
 
   save(): void {
@@ -308,13 +347,21 @@ export class Account extends Entity {
     this.set("balance", Value.fromBigInt(value));
   }
 
-  get logbooks(): Array<string> {
+  get logbooks(): Array<string> | null {
     let value = this.get("logbooks");
-    return value!.toStringArray();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
   }
 
-  set logbooks(value: Array<string>) {
-    this.set("logbooks", Value.fromStringArray(value));
+  set logbooks(value: Array<string> | null) {
+    if (!value) {
+      this.unset("logbooks");
+    } else {
+      this.set("logbooks", Value.fromStringArray(<Array<string>>value));
+    }
   }
 }
 
