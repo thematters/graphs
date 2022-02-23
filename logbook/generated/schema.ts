@@ -19,11 +19,10 @@ export class Logbook extends Entity {
     this.set("owner", Value.fromString(""));
     this.set("cover", Value.fromString(""));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
-    this.set("loggedAt", Value.fromBigInt(BigInt.zero()));
     this.set("title", Value.fromString(""));
     this.set("description", Value.fromString(""));
     this.set("forkPrice", Value.fromBigInt(BigInt.zero()));
-    this.set("logCount", Value.fromBigInt(BigInt.zero()));
+    this.set("publicationCount", Value.fromBigInt(BigInt.zero()));
     this.set("forkCount", Value.fromBigInt(BigInt.zero()));
     this.set("donationCount", Value.fromBigInt(BigInt.zero()));
     this.set("transferCount", Value.fromBigInt(BigInt.zero()));
@@ -82,13 +81,21 @@ export class Logbook extends Entity {
     this.set("createdAt", Value.fromBigInt(value));
   }
 
-  get loggedAt(): BigInt {
+  get loggedAt(): BigInt | null {
     let value = this.get("loggedAt");
-    return value!.toBigInt();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set loggedAt(value: BigInt) {
-    this.set("loggedAt", Value.fromBigInt(value));
+  set loggedAt(value: BigInt | null) {
+    if (!value) {
+      this.unset("loggedAt");
+    } else {
+      this.set("loggedAt", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get title(): string {
@@ -118,64 +125,40 @@ export class Logbook extends Entity {
     this.set("forkPrice", Value.fromBigInt(value));
   }
 
-  get logs(): Array<string> | null {
-    let value = this.get("logs");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
+  get publications(): Array<string> {
+    let value = this.get("publications");
+    return value!.toStringArray();
   }
 
-  set logs(value: Array<string> | null) {
-    if (!value) {
-      this.unset("logs");
-    } else {
-      this.set("logs", Value.fromStringArray(<Array<string>>value));
-    }
+  set publications(value: Array<string>) {
+    this.set("publications", Value.fromStringArray(value));
   }
 
-  get forks(): Array<string> | null {
+  get forks(): Array<string> {
     let value = this.get("forks");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
+    return value!.toStringArray();
   }
 
-  set forks(value: Array<string> | null) {
-    if (!value) {
-      this.unset("forks");
-    } else {
-      this.set("forks", Value.fromStringArray(<Array<string>>value));
-    }
+  set forks(value: Array<string>) {
+    this.set("forks", Value.fromStringArray(value));
   }
 
-  get donations(): Array<string> | null {
+  get donations(): Array<string> {
     let value = this.get("donations");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
+    return value!.toStringArray();
   }
 
-  set donations(value: Array<string> | null) {
-    if (!value) {
-      this.unset("donations");
-    } else {
-      this.set("donations", Value.fromStringArray(<Array<string>>value));
-    }
+  set donations(value: Array<string>) {
+    this.set("donations", Value.fromStringArray(value));
   }
 
-  get logCount(): BigInt {
-    let value = this.get("logCount");
+  get publicationCount(): BigInt {
+    let value = this.get("publicationCount");
     return value!.toBigInt();
   }
 
-  set logCount(value: BigInt) {
-    this.set("logCount", Value.fromBigInt(value));
+  set publicationCount(value: BigInt) {
+    this.set("publicationCount", Value.fromBigInt(value));
   }
 
   get forkCount(): BigInt {
@@ -213,6 +196,7 @@ export class Log extends Entity {
 
     this.set("author", Value.fromString(""));
     this.set("content", Value.fromString(""));
+    this.set("logbooks", Value.fromStringArray(new Array(0)));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
   }
 
@@ -277,21 +261,77 @@ export class Log extends Entity {
     }
   }
 
-  get logbooks(): Array<string> | null {
+  get logbooks(): Array<string> {
     let value = this.get("logbooks");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
+    return value!.toStringArray();
+  }
+
+  set logbooks(value: Array<string>) {
+    this.set("logbooks", Value.fromStringArray(value));
+  }
+
+  get createdAt(): BigInt {
+    let value = this.get("createdAt");
+    return value!.toBigInt();
+  }
+
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
+  }
+}
+
+export class Publication extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("log", Value.fromString(""));
+    this.set("logbook", Value.fromString(""));
+    this.set("createdAt", Value.fromBigInt(BigInt.zero()));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Publication entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Publication entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Publication", id.toString(), this);
     }
   }
 
-  set logbooks(value: Array<string> | null) {
-    if (!value) {
-      this.unset("logbooks");
-    } else {
-      this.set("logbooks", Value.fromStringArray(<Array<string>>value));
-    }
+  static load(id: string): Publication | null {
+    return changetype<Publication | null>(store.get("Publication", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get log(): string {
+    let value = this.get("log");
+    return value!.toString();
+  }
+
+  set log(value: string) {
+    this.set("log", Value.fromString(value));
+  }
+
+  get logbook(): string {
+    let value = this.get("logbook");
+    return value!.toString();
+  }
+
+  set logbook(value: string) {
+    this.set("logbook", Value.fromString(value));
   }
 
   get createdAt(): BigInt {
@@ -347,21 +387,13 @@ export class Account extends Entity {
     this.set("balance", Value.fromBigInt(value));
   }
 
-  get logbooks(): Array<string> | null {
+  get logbooks(): Array<string> {
     let value = this.get("logbooks");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
+    return value!.toStringArray();
   }
 
-  set logbooks(value: Array<string> | null) {
-    if (!value) {
-      this.unset("logbooks");
-    } else {
-      this.set("logbooks", Value.fromStringArray(<Array<string>>value));
-    }
+  set logbooks(value: Array<string>) {
+    this.set("logbooks", Value.fromStringArray(value));
   }
 }
 

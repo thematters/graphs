@@ -12,18 +12,18 @@ type Logbook @entity {
   createdAt: BigInt!
 
   # block.timestamp of latest log published
-  loggedAt: BigInt!
+  loggedAt: BigInt
 
   title: String!
   description: String!
   forkPrice: BigInt!
 
-  logs: [Log!]
-  forks: [Fork!] @derivedFrom(field: "from")
-  donations: [Donation!] @derivedFrom(field: "to")
+  publications: [Publication!]! @derivedFrom(field: "logbook")
+  forks: [Fork!]! @derivedFrom(field: "from")
+  donations: [Donation!]! @derivedFrom(field: "to")
 
   # counts
-  logCount: BigInt!
+  publicationCount: BigInt!
   forkCount: BigInt!
   donationCount: BigInt!
   transferCount: BigInt!
@@ -41,9 +41,21 @@ type Log @entity {
   source: Logbook
 
   # logbooks that have this log
-  logbooks: [Logbook!]
+  logbooks: [Logbook!]!
 
   # block.timestamp of log creation
+  createdAt: BigInt!
+}
+
+type Publication @entity {
+  # transaction.hash-logIndex
+  id: ID!
+
+  log: Log!
+
+  logbook: Logbook!
+
+  # block.timestamp of publish event
   createdAt: BigInt!
 }
 
@@ -55,7 +67,7 @@ type Account @entity {
   balance: BigInt!
 
   # logbooks owned by this account
-  logbooks: [Logbook!] @derivedFrom(field: "owner")
+  logbooks: [Logbook!]! @derivedFrom(field: "owner")
 }
 
 type Fork @entity {
@@ -74,7 +86,7 @@ type Fork @entity {
 }
 
 type Donation @entity {
-  # transaction.hash
+  # transaction.hash-logIndex
   id: ID!
 
   to: Logbook!
@@ -88,7 +100,7 @@ type Donation @entity {
 }
 
 type Pay @entity {
-  # transaction.hash
+  # transaction.hash-logIndex
   id: ID!
 
   to: Logbook!
