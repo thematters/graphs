@@ -1,0 +1,122 @@
+type Logbook @entity {
+  # logbook token id
+  id: ID!
+
+  # owner address
+  owner: Account!
+
+  # base64 encoded SVG
+  cover: String!
+
+  # block.timestamp of token mint
+  createdAt: BigInt!
+
+  # block.timestamp of latest log published
+  loggedAt: BigInt
+
+  title: String!
+  description: String!
+  forkPrice: BigInt!
+
+  publications: [Publication!]! @derivedFrom(field: "logbook")
+  forks: [Fork!]! @derivedFrom(field: "from")
+  donations: [Donation!]! @derivedFrom(field: "to")
+
+  # counts
+  publicationCount: BigInt!
+  forkCount: BigInt!
+  donationCount: BigInt!
+  transferCount: BigInt!
+}
+
+type Log @entity {
+  # content hash
+  id: ID!
+
+  author: Account!
+
+  content: String!
+
+  # logbook that first published to
+  source: Logbook
+
+  # logbooks that have this log
+  logbooks: [Logbook!]!
+
+  # block.timestamp of log creation
+  createdAt: BigInt!
+}
+
+type Publication @entity {
+  # transaction.hash-logIndex
+  id: ID!
+
+  log: Log!
+
+  logbook: Logbook!
+
+  # block.timestamp of publish event
+  createdAt: BigInt!
+}
+
+type Account @entity {
+  # address
+  id: ID!
+
+  # withdrawable balance
+  balance: BigInt!
+
+  # logbooks owned by this account
+  logbooks: [Logbook!]! @derivedFrom(field: "owner")
+}
+
+type Fork @entity {
+  # `${from.id}-${to.id}`
+  id: ID!
+
+  from: Logbook!
+  to: Logbook!
+
+  end: Log!
+
+  amount: BigInt!
+
+  # block.timestamp
+  createdAt: BigInt!
+}
+
+type Donation @entity {
+  # transaction.hash-logIndex
+  id: ID!
+
+  to: Logbook!
+
+  donor: Account!
+
+  amount: BigInt!
+
+  # block.timestamp
+  createdAt: BigInt!
+}
+
+type Pay @entity {
+  # transaction.hash-logIndex
+  id: ID!
+
+  to: Logbook!
+
+  sender: Account!
+  recipient: Account!
+
+  amount: BigInt!
+
+  purpose: RoyaltyPurpose!
+
+  # block.timestamp
+  createdAt: BigInt!
+}
+
+enum RoyaltyPurpose {
+  Fork
+  Donate
+}
