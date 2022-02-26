@@ -66,6 +66,8 @@ function Feed() {
 
 More query usages, see [GraphQL API](https://thegraph.com/docs/en/developer/graphql-api).
 
+To interact with the contract, please checkout [thematters/contracts](https://github.com/thematters/contracts).
+
 ## Development
 
 Install the Graph CLI
