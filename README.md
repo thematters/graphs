@@ -4,9 +4,9 @@ We use [The Graph](https://thegraph.com/) to index [contract](https://github.com
 
 ## Subgraphs
 
-| Name    | Network        | Playground URL                                                  | API Endpoint                                               |
-| ------- | -------------- | --------------------------------------------------------------- | ---------------------------------------------------------- |
-| Logbook | Polygon Mumbai | https://thegraph.com/hosted-service/subgraph/thematters/logbook | https://api.thegraph.com/subgraphs/name/thematters/logbook |
+| Name    | Network        | Playground URL                                                         | API Endpoint                                                      |
+| ------- | -------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Logbook | Polygon Mumbai | https://thegraph.com/hosted-service/subgraph/thematters/logbook-mumbai | https://api.thegraph.com/subgraphs/name/thematters/logbook-mumbai |
 
 ### GraphQL Schema
 
@@ -26,7 +26,7 @@ import {
 
 // initialize the client
 const API_ENDPOINT =
-  "https://api.thegraph.com/subgraphs/name/thematters/logbook";
+  "https://api.thegraph.com/subgraphs/name/thematters/logbook-mumbai";
 const client = new ApolloClient({
   uri: API_ENDPOINT,
   cache: new InMemoryCache()
@@ -92,5 +92,5 @@ npm run codegen -- -o logbook/generated/ logbook/subgraph.yaml
 npm run build -- -o logbook/build/ logbook/subgraph.yaml
 
 # Deploy
-npm run deploy -- -o logbook/build/ thematters/logbook logbook/subgraph.yaml
+npm run deploy -- -o logbook/build/ thematters/logbook-mumbai logbook/subgraph.yaml
 ```
