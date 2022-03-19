@@ -83,16 +83,21 @@ Install dependencies
 npm install
 ```
 
+Codegen
+
+```bash
+npm run codegen:logbook
+```
+
+Build
+
+```bash
+npm run build:logbook
+```
+
 ## Deploy
 
 ```bash
-# Codegen
-npm run codegen:logbook
-
-# Build
-npm run build:logbook
-
-# Deploy
 npm run deploy:logobok:polygon-mumbai
 npm run deploy:logobok:polygon-mainnet
 ```
