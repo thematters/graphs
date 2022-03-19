@@ -17,7 +17,7 @@ export class Logbook extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("owner", Value.fromString(""));
-    this.set("cover", Value.fromString(""));
+    this.set("tokenURI", Value.fromString(""));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
     this.set("title", Value.fromString(""));
     this.set("description", Value.fromString(""));
@@ -63,13 +63,13 @@ export class Logbook extends Entity {
     this.set("owner", Value.fromString(value));
   }
 
-  get cover(): string {
-    let value = this.get("cover");
+  get tokenURI(): string {
+    let value = this.get("tokenURI");
     return value!.toString();
   }
 
-  set cover(value: string) {
-    this.set("cover", Value.fromString(value));
+  set tokenURI(value: string) {
+    this.set("tokenURI", Value.fromString(value));
   }
 
   get createdAt(): BigInt {
@@ -198,6 +198,7 @@ export class Log extends Entity {
     this.set("content", Value.fromString(""));
     this.set("logbooks", Value.fromStringArray(new Array(0)));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
+    this.set("txHash", Value.fromString(""));
   }
 
   save(): void {
@@ -278,6 +279,15 @@ export class Log extends Entity {
   set createdAt(value: BigInt) {
     this.set("createdAt", Value.fromBigInt(value));
   }
+
+  get txHash(): string {
+    let value = this.get("txHash");
+    return value!.toString();
+  }
+
+  set txHash(value: string) {
+    this.set("txHash", Value.fromString(value));
+  }
 }
 
 export class Publication extends Entity {
@@ -288,6 +298,7 @@ export class Publication extends Entity {
     this.set("log", Value.fromString(""));
     this.set("logbook", Value.fromString(""));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
+    this.set("txHash", Value.fromString(""));
   }
 
   save(): void {
@@ -341,6 +352,15 @@ export class Publication extends Entity {
 
   set createdAt(value: BigInt) {
     this.set("createdAt", Value.fromBigInt(value));
+  }
+
+  get txHash(): string {
+    let value = this.get("txHash");
+    return value!.toString();
+  }
+
+  set txHash(value: string) {
+    this.set("txHash", Value.fromString(value));
   }
 }
 
@@ -407,6 +427,7 @@ export class Fork extends Entity {
     this.set("end", Value.fromString(""));
     this.set("amount", Value.fromBigInt(BigInt.zero()));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
+    this.set("txHash", Value.fromString(""));
   }
 
   save(): void {
@@ -479,6 +500,15 @@ export class Fork extends Entity {
   set createdAt(value: BigInt) {
     this.set("createdAt", Value.fromBigInt(value));
   }
+
+  get txHash(): string {
+    let value = this.get("txHash");
+    return value!.toString();
+  }
+
+  set txHash(value: string) {
+    this.set("txHash", Value.fromString(value));
+  }
 }
 
 export class Donation extends Entity {
@@ -490,6 +520,7 @@ export class Donation extends Entity {
     this.set("donor", Value.fromString(""));
     this.set("amount", Value.fromBigInt(BigInt.zero()));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
+    this.set("txHash", Value.fromString(""));
   }
 
   save(): void {
@@ -553,6 +584,15 @@ export class Donation extends Entity {
   set createdAt(value: BigInt) {
     this.set("createdAt", Value.fromBigInt(value));
   }
+
+  get txHash(): string {
+    let value = this.get("txHash");
+    return value!.toString();
+  }
+
+  set txHash(value: string) {
+    this.set("txHash", Value.fromString(value));
+  }
 }
 
 export class Pay extends Entity {
@@ -566,6 +606,7 @@ export class Pay extends Entity {
     this.set("amount", Value.fromBigInt(BigInt.zero()));
     this.set("purpose", Value.fromString(""));
     this.set("createdAt", Value.fromBigInt(BigInt.zero()));
+    this.set("txHash", Value.fromString(""));
   }
 
   save(): void {
@@ -646,5 +687,14 @@ export class Pay extends Entity {
 
   set createdAt(value: BigInt) {
     this.set("createdAt", Value.fromBigInt(value));
+  }
+
+  get txHash(): string {
+    let value = this.get("txHash");
+    return value!.toString();
+  }
+
+  set txHash(value: string) {
+    this.set("txHash", Value.fromString(value));
   }
 }

@@ -1,4 +1,6 @@
+import { Logbook as LogbookContract } from "../generated/Logbook/Logbook";
 import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 
 import { Account } from "../generated/schema";
 
@@ -19,3 +21,17 @@ export function getOrCreateAccount(address: Address): Account {
 
   return account;
 }
+
+export const getTokenURI = (tokenId: BigInt, address: Address): string => {
+  const logbook = LogbookContract.bind(address);
+
+  let callResult = logbook.try_tokenURI(tokenId);
+
+  if (callResult.reverted) {
+    log.info("getNFTSVG reverted", [tokenId.toString()]);
+  } else {
+    return callResult.value;
+  }
+
+  return "";
+};

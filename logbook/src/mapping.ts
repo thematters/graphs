@@ -19,7 +19,13 @@ import {
   Pay,
   Publication
 } from "../generated/schema";
-import { getOrCreateAccount, ONE_BI, ZERO_ADDRESS, ZERO_BI } from "./helpers";
+import {
+  getOrCreateAccount,
+  getTokenURI,
+  ONE_BI,
+  ZERO_ADDRESS,
+  ZERO_BI
+} from "./helpers";
 
 export function handleDonate(event: Donate): void {
   const logbookId = event.params.tokenId.toHexString();
@@ -32,6 +38,7 @@ export function handleDonate(event: Donate): void {
   donation.donor = donor.id;
   donation.amount = event.params.amount;
   donation.createdAt = event.block.timestamp;
+  donation.txHash = txHash;
   donation.save();
 
   // update logbook
@@ -46,6 +53,7 @@ export function handleFork(event: ForkEvent): void {
   const fromLogbookId = event.params.tokenId.toHexString();
   const toLogbookId = event.params.newTokenId.toHexString();
   const endLogId = event.params.end.toHexString();
+  const txHash = event.transaction.hash.toHexString();
 
   // create fork
   const forkId = `${fromLogbookId}-${toLogbookId}`;
@@ -55,6 +63,7 @@ export function handleFork(event: ForkEvent): void {
   fork.end = endLogId;
   fork.amount = event.params.amount;
   fork.createdAt = event.block.timestamp;
+  fork.txHash = txHash;
   fork.save();
 
   // update "from" logbook
@@ -100,6 +109,7 @@ export function handlePay(event: PayEvent): void {
 export function handleContent(event: Content): void {
   const logId = event.params.contentHash.toHexString();
   const author = getOrCreateAccount(event.params.author);
+  const txHash = event.transaction.hash.toHexString();
 
   // create log
   let log = Log.load(logId);
@@ -110,6 +120,7 @@ export function handleContent(event: Content): void {
     log.source = null;
     log.logbooks = [];
     log.createdAt = event.block.timestamp;
+    log.txHash = txHash;
     log.save();
   }
 }
@@ -128,12 +139,14 @@ export function handlePublish(event: Publish): void {
     publication.log = logId;
     publication.logbook = logbookId;
     publication.createdAt = event.block.timestamp;
+    publication.txHash = txHash;
     publication.save();
   }
 
   // update logbook
   let logbook = Logbook.load(logbookId);
   if (logbook) {
+    logbook.tokenURI = getTokenURI(event.params.tokenId, event.address);
     logbook.loggedAt = event.block.timestamp;
     logbook.publicationCount = logbook.publicationCount.plus(ONE_BI);
     logbook.save();
@@ -189,7 +202,7 @@ export function handleTransfer(event: Transfer): void {
   let logbook = Logbook.load(logbookId);
   if (logbook === null) {
     logbook = new Logbook(logbookId);
-    logbook.cover = ""; // TODO
+    logbook.tokenURI = getTokenURI(event.params.tokenId, event.address);
     logbook.createdAt = event.block.timestamp;
     logbook.loggedAt = null;
     logbook.title = "";

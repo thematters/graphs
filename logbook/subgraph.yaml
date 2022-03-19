@@ -8,10 +8,10 @@ features:
   - nonFatalErrors
 dataSources:
   - kind: ethereum
-    name: LogbookMumbai
+    name: Logbook
     network: mumbai
     source:
-      address: "0x50ca2d621fc540f9b5b68104a5ead702ac533e6e"
+      address: "0x0ad10c61e8c7c0b975266ad64f4902e3fe2ff0d1"
       abi: Logbook
       startBlock: 25546601
     mapping:
