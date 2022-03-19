@@ -4,9 +4,10 @@ We use [The Graph](https://thegraph.com/) to index [contract](https://github.com
 
 ## Subgraphs
 
-| Name    | Network        | Playground URL                                                         | API Endpoint                                                      |
-| ------- | -------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Logbook | Polygon Mumbai | https://thegraph.com/hosted-service/subgraph/thematters/logbook-mumbai | https://api.thegraph.com/subgraphs/name/thematters/logbook-mumbai |
+| Name    | Network         | Playground URL                                                         | API Endpoint                                                      |
+| ------- | --------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Logbook | Polygon Mumbai  | https://thegraph.com/hosted-service/subgraph/thematters/logbook-mumbai | https://api.thegraph.com/subgraphs/name/thematters/logbook-mumbai |
+| Logbook | Polygon Mainnet | https://thegraph.com/hosted-service/subgraph/thematters/logbook        | https://api.thegraph.com/subgraphs/name/thematters/logbook        |
 
 ### GraphQL Schema
 
