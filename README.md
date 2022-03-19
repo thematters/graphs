@@ -86,10 +86,10 @@ npm install
 
 ```bash
 # Codegen
-npm run codegen -- -o logbook/generated/ logbook/subgraph.yaml
+npm run codegen:logbook
 
 # Build
-npm run build -- -o logbook/build/ logbook/subgraph.yaml
+npm run build:logbook
 
 # Deploy
 npm run deploy:logobok:polygon-mumbai

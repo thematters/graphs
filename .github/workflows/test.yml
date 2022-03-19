@@ -22,5 +22,4 @@ jobs:
 
       - name: Test (Logbook)
         run: |
-          npm run codegen -- -o logbook/generated/ logbook/subgraph.yaml \
-          && npm run build -- -o logbook/build/ logbook/subgraph.yaml
+          npm run codegen:logbook && npm run build:logbook
