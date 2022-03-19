@@ -18,7 +18,9 @@ type Logbook @entity {
   description: String!
   forkPrice: BigInt!
 
-  publications: [Publication!]! @derivedFrom(field: "logbook")
+  parent: Logbook
+
+  publications: [Publication!]!
   forks: [Fork!]! @derivedFrom(field: "from")
   donations: [Donation!]! @derivedFrom(field: "to")
 
@@ -43,6 +45,8 @@ type Log @entity {
   # logbooks that have this log
   logbooks: [Logbook!]!
 
+  logbookCount: BigInt!
+
   # block.timestamp of log creation
   createdAt: BigInt!
 
@@ -56,7 +60,13 @@ type Publication @entity {
 
   log: Log!
 
-  logbook: Logbook!
+  # logbook that first published to
+  source: Logbook
+
+  # logbooks that have this log
+  logbooks: [Logbook!]!
+
+  logbookCount: BigInt!
 
   # block.timestamp of publish event
   createdAt: BigInt!

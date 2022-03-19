@@ -8,7 +8,7 @@ export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const ZERO_BI = BigInt.fromI32(0);
 export const ONE_BI = BigInt.fromI32(1);
 
-export function getOrCreateAccount(address: Address): Account {
+export const getOrCreateAccount = (address: Address): Account => {
   const id = address.toHexString();
 
   let account = Account.load(id);
@@ -20,7 +20,7 @@ export function getOrCreateAccount(address: Address): Account {
   }
 
   return account;
-}
+};
 
 export const getTokenURI = (tokenId: BigInt, address: Address): string => {
   const logbook = LogbookContract.bind(address);
