@@ -28,7 +28,7 @@ dataSources:
       eventHandlers:
         - event: Donate(indexed uint256,indexed address,uint256)
           handler: handleDonate
-        - event: Fork(indexed uint256,indexed uint256,indexed address,uint256,uint256)
+        - event: Fork(indexed uint256,indexed uint256,indexed address,uint32,uint256)
           handler: handleFork
         - event: Pay(indexed uint256,indexed address,indexed address,uint256,uint8)
           handler: handlePay

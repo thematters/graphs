@@ -340,22 +340,49 @@ export class Withdraw__Params {
   }
 }
 
-export class Logbook__getLogbookResult {
-  value0: BigInt;
-  value1: Array<Bytes>;
-  value2: Array<Address>;
+export class Logbook__getLogbookResultBookStruct extends ethereum.Tuple {
+  get endAt(): BigInt {
+    return this[0].toBigInt();
+  }
 
-  constructor(value0: BigInt, value1: Array<Bytes>, value2: Array<Address>) {
+  get logCount(): BigInt {
+    return this[1].toBigInt();
+  }
+
+  get transferCount(): BigInt {
+    return this[2].toBigInt();
+  }
+
+  get createdAt(): BigInt {
+    return this[3].toBigInt();
+  }
+
+  get from(): BigInt {
+    return this[4].toBigInt();
+  }
+
+  get forkPrice(): BigInt {
+    return this[5].toBigInt();
+  }
+
+  get contentHashes(): Array<Bytes> {
+    return this[6].toBytesArray();
+  }
+}
+
+export class Logbook__getLogsResult {
+  value0: Array<Bytes>;
+  value1: Array<Address>;
+
+  constructor(value0: Array<Bytes>, value1: Array<Address>) {
     this.value0 = value0;
     this.value1 = value1;
-    this.value2 = value2;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
     let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromFixedBytesArray(this.value1));
-    map.set("value2", ethereum.Value.fromAddressArray(this.value2));
+    map.set("value0", ethereum.Value.fromFixedBytesArray(this.value0));
+    map.set("value1", ethereum.Value.fromAddressArray(this.value1));
     return map;
   }
 }
@@ -393,25 +420,6 @@ export class Logbook extends ethereum.SmartContract {
   try_balanceOf(owner: Address): ethereum.CallResult<BigInt> {
     let result = super.tryCall("balanceOf", "balanceOf(address):(uint256)", [
       ethereum.Value.fromAddress(owner)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  books(param0: BigInt): BigInt {
-    let result = super.call("books", "books(uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(param0)
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_books(param0: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("books", "books(uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(param0)
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -460,26 +468,22 @@ export class Logbook extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  getLogbook(tokenId_: BigInt): Logbook__getLogbookResult {
+  getLogbook(tokenId_: BigInt): Logbook__getLogbookResultBookStruct {
     let result = super.call(
       "getLogbook",
-      "getLogbook(uint256):(uint256,bytes32[],address[])",
+      "getLogbook(uint256):((uint32,uint32,uint32,uint160,uint256,uint256,bytes32[]))",
       [ethereum.Value.fromUnsignedBigInt(tokenId_)]
     );
 
-    return new Logbook__getLogbookResult(
-      result[0].toBigInt(),
-      result[1].toBytesArray(),
-      result[2].toAddressArray()
-    );
+    return changetype<Logbook__getLogbookResultBookStruct>(result[0].toTuple());
   }
 
   try_getLogbook(
     tokenId_: BigInt
-  ): ethereum.CallResult<Logbook__getLogbookResult> {
+  ): ethereum.CallResult<Logbook__getLogbookResultBookStruct> {
     let result = super.tryCall(
       "getLogbook",
-      "getLogbook(uint256):(uint256,bytes32[],address[])",
+      "getLogbook(uint256):((uint32,uint32,uint32,uint160,uint256,uint256,bytes32[]))",
       [ethereum.Value.fromUnsignedBigInt(tokenId_)]
     );
     if (result.reverted) {
@@ -487,10 +491,37 @@ export class Logbook extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      new Logbook__getLogbookResult(
-        value[0].toBigInt(),
-        value[1].toBytesArray(),
-        value[2].toAddressArray()
+      changetype<Logbook__getLogbookResultBookStruct>(value[0].toTuple())
+    );
+  }
+
+  getLogs(tokenId_: BigInt): Logbook__getLogsResult {
+    let result = super.call(
+      "getLogs",
+      "getLogs(uint256):(bytes32[],address[])",
+      [ethereum.Value.fromUnsignedBigInt(tokenId_)]
+    );
+
+    return new Logbook__getLogsResult(
+      result[0].toBytesArray(),
+      result[1].toAddressArray()
+    );
+  }
+
+  try_getLogs(tokenId_: BigInt): ethereum.CallResult<Logbook__getLogsResult> {
+    let result = super.tryCall(
+      "getLogs",
+      "getLogs(uint256):(bytes32[],address[])",
+      [ethereum.Value.fromUnsignedBigInt(tokenId_)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new Logbook__getLogsResult(
+        value[0].toBytesArray(),
+        value[1].toAddressArray()
       )
     );
   }
@@ -540,25 +571,6 @@ export class Logbook extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new Logbook__logsResult(value[0].toAddress(), value[1].toBigInt())
     );
-  }
-
-  multicall(data: Array<Bytes>): Array<Bytes> {
-    let result = super.call("multicall", "multicall(bytes[]):(bytes[])", [
-      ethereum.Value.fromBytesArray(data)
-    ]);
-
-    return result[0].toBytesArray();
-  }
-
-  try_multicall(data: Array<Bytes>): ethereum.CallResult<Array<Bytes>> {
-    let result = super.tryCall("multicall", "multicall(bytes[]):(bytes[])", [
-      ethereum.Value.fromBytesArray(data)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytesArray());
   }
 
   name(): string {
@@ -611,13 +623,13 @@ export class Logbook extends ethereum.SmartContract {
   }
 
   publicSale(): BigInt {
-    let result = super.call("publicSale", "publicSale():(uint128)", []);
+    let result = super.call("publicSale", "publicSale():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
   try_publicSale(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("publicSale", "publicSale():(uint128)", []);
+    let result = super.tryCall("publicSale", "publicSale():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -686,46 +698,57 @@ export class Logbook extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
-  togglePublicSale(): BigInt {
-    let result = super.call(
-      "togglePublicSale",
-      "togglePublicSale():(uint128)",
-      []
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_togglePublicSale(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "togglePublicSale",
-      "togglePublicSale():(uint128)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  tokenURI(tokenId: BigInt): string {
+  tokenURI(tokenId_: BigInt): string {
     let result = super.call("tokenURI", "tokenURI(uint256):(string)", [
-      ethereum.Value.fromUnsignedBigInt(tokenId)
+      ethereum.Value.fromUnsignedBigInt(tokenId_)
     ]);
 
     return result[0].toString();
   }
 
-  try_tokenURI(tokenId: BigInt): ethereum.CallResult<string> {
+  try_tokenURI(tokenId_: BigInt): ethereum.CallResult<string> {
     let result = super.tryCall("tokenURI", "tokenURI(uint256):(string)", [
-      ethereum.Value.fromUnsignedBigInt(tokenId)
+      ethereum.Value.fromUnsignedBigInt(tokenId_)
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+}
+
+export class ConstructorCall extends ethereum.Call {
+  get inputs(): ConstructorCall__Inputs {
+    return new ConstructorCall__Inputs(this);
+  }
+
+  get outputs(): ConstructorCall__Outputs {
+    return new ConstructorCall__Outputs(this);
+  }
+}
+
+export class ConstructorCall__Inputs {
+  _call: ConstructorCall;
+
+  constructor(call: ConstructorCall) {
+    this._call = call;
+  }
+
+  get name_(): string {
+    return this._call.inputValues[0].value.toString();
+  }
+
+  get symbol_(): string {
+    return this._call.inputValues[1].value.toString();
+  }
+}
+
+export class ConstructorCall__Outputs {
+  _call: ConstructorCall;
+
+  constructor(call: ConstructorCall) {
+    this._call = call;
   }
 }
 
@@ -886,7 +909,7 @@ export class ForkCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get end_(): BigInt {
+  get endAt_(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
 }
@@ -924,7 +947,7 @@ export class ForkWithCommissionCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get end_(): BigInt {
+  get endAt_(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
 
@@ -1319,36 +1342,6 @@ export class SetTitleCall__Outputs {
   }
 }
 
-export class TogglePublicSaleCall extends ethereum.Call {
-  get inputs(): TogglePublicSaleCall__Inputs {
-    return new TogglePublicSaleCall__Inputs(this);
-  }
-
-  get outputs(): TogglePublicSaleCall__Outputs {
-    return new TogglePublicSaleCall__Outputs(this);
-  }
-}
-
-export class TogglePublicSaleCall__Inputs {
-  _call: TogglePublicSaleCall;
-
-  constructor(call: TogglePublicSaleCall) {
-    this._call = call;
-  }
-}
-
-export class TogglePublicSaleCall__Outputs {
-  _call: TogglePublicSaleCall;
-
-  constructor(call: TogglePublicSaleCall) {
-    this._call = call;
-  }
-
-  get newPublicSale(): BigInt {
-    return this._call.outputValues[0].value.toBigInt();
-  }
-}
-
 export class TransferFromCall extends ethereum.Call {
   get inputs(): TransferFromCall__Inputs {
     return new TransferFromCall__Inputs(this);
@@ -1413,6 +1406,58 @@ export class TransferOwnershipCall__Outputs {
   _call: TransferOwnershipCall;
 
   constructor(call: TransferOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class TurnOffPublicSaleCall extends ethereum.Call {
+  get inputs(): TurnOffPublicSaleCall__Inputs {
+    return new TurnOffPublicSaleCall__Inputs(this);
+  }
+
+  get outputs(): TurnOffPublicSaleCall__Outputs {
+    return new TurnOffPublicSaleCall__Outputs(this);
+  }
+}
+
+export class TurnOffPublicSaleCall__Inputs {
+  _call: TurnOffPublicSaleCall;
+
+  constructor(call: TurnOffPublicSaleCall) {
+    this._call = call;
+  }
+}
+
+export class TurnOffPublicSaleCall__Outputs {
+  _call: TurnOffPublicSaleCall;
+
+  constructor(call: TurnOffPublicSaleCall) {
+    this._call = call;
+  }
+}
+
+export class TurnOnPublicSaleCall extends ethereum.Call {
+  get inputs(): TurnOnPublicSaleCall__Inputs {
+    return new TurnOnPublicSaleCall__Inputs(this);
+  }
+
+  get outputs(): TurnOnPublicSaleCall__Outputs {
+    return new TurnOnPublicSaleCall__Outputs(this);
+  }
+}
+
+export class TurnOnPublicSaleCall__Inputs {
+  _call: TurnOnPublicSaleCall;
+
+  constructor(call: TurnOnPublicSaleCall) {
+    this._call = call;
+  }
+}
+
+export class TurnOnPublicSaleCall__Outputs {
+  _call: TurnOnPublicSaleCall;
+
+  constructor(call: TurnOnPublicSaleCall) {
     this._call = call;
   }
 }

@@ -1,6 +1,5 @@
 [
   {
-    "type": "constructor",
     "inputs": [
       {
         "internalType": "string",
@@ -12,11 +11,419 @@
         "name": "symbol_",
         "type": "string"
       }
-    ]
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
-    "type": "function",
-    "name": "approve",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "available",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "required",
+        "type": "uint256"
+      }
+    ],
+    "name": "InsufficientAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "available",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "required",
+        "type": "uint256"
+      }
+    ],
+    "name": "InsufficientBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "maxEndAt",
+        "type": "uint32"
+      }
+    ],
+    "name": "InsufficientLogs",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "min",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "max",
+        "type": "uint256"
+      }
+    ],
+    "name": "InvalidBPS",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "min",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "max",
+        "type": "uint256"
+      }
+    ],
+    "name": "InvalidTokenId",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PublicSaleNotStarted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenNotExists",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "Unauthorized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAmount",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "approved",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "Approval",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "approved",
+        "type": "bool"
+      }
+    ],
+    "name": "ApprovalForAll",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "author",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "contentHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "content",
+        "type": "string"
+      }
+    ],
+    "name": "Content",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "donor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Donate",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "newTokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "end",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Fork",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IRoyalty.RoyaltyPurpose",
+        "name": "purpose",
+        "type": "uint8"
+      }
+    ],
+    "name": "Pay",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "contentHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "Publish",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      }
+    ],
+    "name": "SetDescription",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "SetForkPrice",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
+      }
+    ],
+    "name": "SetTitle",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "Transfer",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Withdraw",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -29,12 +436,12 @@
         "type": "uint256"
       }
     ],
+    "name": "approve",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "balanceOf",
     "inputs": [
       {
         "internalType": "address",
@@ -42,6 +449,7 @@
         "type": "address"
       }
     ],
+    "name": "balanceOf",
     "outputs": [
       {
         "internalType": "uint256",
@@ -49,30 +457,10 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "books",
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "forkPrice",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "claim",
     "inputs": [
       {
         "internalType": "address",
@@ -85,48 +473,48 @@
         "type": "uint256"
       }
     ],
+    "name": "claim",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      }
+    ],
     "name": "donate",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
         "name": "tokenId_",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "commission_",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "commissionBPS_",
+        "type": "uint256"
       }
     ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
     "name": "donateWithCommission",
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId_",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "commission_",
-        "type": "address"
-      },
-      {
-        "internalType": "uint128",
-        "name": "commissionBPS_",
-        "type": "uint128"
-      }
-    ],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "fork",
     "inputs": [
       {
         "internalType": "uint256",
@@ -134,11 +522,12 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "end_",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "endAt_",
+        "type": "uint32"
       }
     ],
+    "name": "fork",
     "outputs": [
       {
         "internalType": "uint256",
@@ -146,11 +535,10 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable"
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "forkWithCommission",
     "inputs": [
       {
         "internalType": "uint256",
@@ -158,9 +546,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "end_",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "endAt_",
+        "type": "uint32"
       },
       {
         "internalType": "address",
@@ -168,11 +556,12 @@
         "type": "address"
       },
       {
-        "internalType": "uint128",
+        "internalType": "uint256",
         "name": "commissionBPS_",
-        "type": "uint128"
+        "type": "uint256"
       }
     ],
+    "name": "forkWithCommission",
     "outputs": [
       {
         "internalType": "uint256",
@@ -180,11 +569,10 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable"
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "getApproved",
     "inputs": [
       {
         "internalType": "uint256",
@@ -192,6 +580,7 @@
         "type": "uint256"
       }
     ],
+    "name": "getApproved",
     "outputs": [
       {
         "internalType": "address",
@@ -199,11 +588,10 @@
         "type": "address"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "getBalance",
     "inputs": [
       {
         "internalType": "address",
@@ -211,18 +599,18 @@
         "type": "address"
       }
     ],
+    "name": "getBalance",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "getLogbook",
     "inputs": [
       {
         "internalType": "uint256",
@@ -230,12 +618,64 @@
         "type": "uint256"
       }
     ],
+    "name": "getLogbook",
     "outputs": [
       {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "endAt",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "logCount",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "transferCount",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint160",
+            "name": "createdAt",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint256",
+            "name": "from",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "forkPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "contentHashes",
+            "type": "bytes32[]"
+          }
+        ],
+        "internalType": "struct ILogbook.Book",
+        "name": "book",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
-        "name": "forkPrice",
+        "name": "tokenId_",
         "type": "uint256"
-      },
+      }
+    ],
+    "name": "getLogs",
+    "outputs": [
       {
         "internalType": "bytes32[]",
         "name": "contentHashes",
@@ -247,11 +687,10 @@
         "type": "address[]"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "isApprovedForAll",
     "inputs": [
       {
         "internalType": "address",
@@ -264,6 +703,7 @@
         "type": "address"
       }
     ],
+    "name": "isApprovedForAll",
     "outputs": [
       {
         "internalType": "bool",
@@ -271,11 +711,10 @@
         "type": "bool"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "logs",
     "inputs": [
       {
         "internalType": "bytes32",
@@ -283,6 +722,7 @@
         "type": "bytes32"
       }
     ],
+    "name": "logs",
     "outputs": [
       {
         "internalType": "address",
@@ -295,11 +735,10 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "multicall",
     "inputs": [
       {
         "internalType": "bytes[]",
@@ -307,6 +746,7 @@
         "type": "bytes[]"
       }
     ],
+    "name": "multicall",
     "outputs": [
       {
         "internalType": "bytes[]",
@@ -314,12 +754,12 @@
         "type": "bytes[]"
       }
     ],
-    "stateMutability": "nonpayable"
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "name",
     "inputs": [],
+    "name": "name",
     "outputs": [
       {
         "internalType": "string",
@@ -327,12 +767,12 @@
         "type": "string"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "owner",
     "inputs": [],
+    "name": "owner",
     "outputs": [
       {
         "internalType": "address",
@@ -340,11 +780,10 @@
         "type": "address"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "ownerOf",
     "inputs": [
       {
         "internalType": "uint256",
@@ -352,6 +791,7 @@
         "type": "uint256"
       }
     ],
+    "name": "ownerOf",
     "outputs": [
       {
         "internalType": "address",
@@ -359,25 +799,25 @@
         "type": "address"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "publicSale",
     "inputs": [],
+    "name": "publicSale",
     "outputs": [
       {
-        "internalType": "uint128",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint128"
+        "type": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "publicSaleMint",
     "inputs": [],
+    "name": "publicSaleMint",
     "outputs": [
       {
         "internalType": "uint256",
@@ -385,12 +825,12 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable"
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "publicSalePrice",
     "inputs": [],
+    "name": "publicSalePrice",
     "outputs": [
       {
         "internalType": "uint256",
@@ -398,11 +838,10 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "publish",
     "inputs": [
       {
         "internalType": "uint256",
@@ -415,19 +854,19 @@
         "type": "string"
       }
     ],
+    "name": "publish",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "renounceOwnership",
     "inputs": [],
+    "name": "renounceOwnership",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "safeTransferFrom",
     "inputs": [
       {
         "internalType": "address",
@@ -445,12 +884,12 @@
         "type": "uint256"
       }
     ],
+    "name": "safeTransferFrom",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "safeTransferFrom",
     "inputs": [
       {
         "internalType": "address",
@@ -473,12 +912,12 @@
         "type": "bytes"
       }
     ],
+    "name": "safeTransferFrom",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "setApprovalForAll",
     "inputs": [
       {
         "internalType": "address",
@@ -491,12 +930,12 @@
         "type": "bool"
       }
     ],
+    "name": "setApprovalForAll",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "setDescription",
     "inputs": [
       {
         "internalType": "uint256",
@@ -509,12 +948,12 @@
         "type": "string"
       }
     ],
+    "name": "setDescription",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "setForkPrice",
     "inputs": [
       {
         "internalType": "uint256",
@@ -527,12 +966,12 @@
         "type": "uint256"
       }
     ],
+    "name": "setForkPrice",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "setPublicSalePrice",
     "inputs": [
       {
         "internalType": "uint256",
@@ -540,12 +979,12 @@
         "type": "uint256"
       }
     ],
+    "name": "setPublicSalePrice",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "setTitle",
     "inputs": [
       {
         "internalType": "uint256",
@@ -558,12 +997,12 @@
         "type": "string"
       }
     ],
+    "name": "setTitle",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "supportsInterface",
     "inputs": [
       {
         "internalType": "bytes4",
@@ -571,6 +1010,7 @@
         "type": "bytes4"
       }
     ],
+    "name": "supportsInterface",
     "outputs": [
       {
         "internalType": "bool",
@@ -578,12 +1018,12 @@
         "type": "bool"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
+    "inputs": [],
     "name": "symbol",
-    "inputs": [],
     "outputs": [
       {
         "internalType": "string",
@@ -591,31 +1031,18 @@
         "type": "string"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "togglePublicSale",
-    "inputs": [],
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint128",
-        "name": "newPublicSale",
-        "type": "uint128"
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "tokenURI",
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
     "outputs": [
       {
         "internalType": "string",
@@ -623,11 +1050,10 @@
         "type": "string"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "transferFrom",
     "inputs": [
       {
         "internalType": "address",
@@ -645,12 +1071,12 @@
         "type": "uint256"
       }
     ],
+    "name": "transferFrom",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "transferOwnership",
     "inputs": [
       {
         "internalType": "address",
@@ -658,290 +1084,30 @@
         "type": "address"
       }
     ],
+    "name": "transferOwnership",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "function",
-    "name": "withdraw",
     "inputs": [],
+    "name": "turnOffPublicSale",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "event",
-    "name": "Approval",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "approved",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true
-      }
-    ],
-    "anonymous": false
+    "inputs": [],
+    "name": "turnOnPublicSale",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "type": "event",
-    "name": "ApprovalForAll",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "operator",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "approved",
-        "type": "bool",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Content",
-    "inputs": [
-      {
-        "name": "author",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "contentHash",
-        "type": "bytes32",
-        "indexed": true
-      },
-      {
-        "name": "content",
-        "type": "string",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Donate",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "donor",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Fork",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "newTokenId",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "owner",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "end",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "OwnershipTransferred",
-    "inputs": [
-      {
-        "name": "previousOwner",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "newOwner",
-        "type": "address",
-        "indexed": true
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Pay",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "sender",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "recipient",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false
-      },
-      {
-        "name": "purpose",
-        "type": "uint8",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Publish",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "contentHash",
-        "type": "bytes32",
-        "indexed": true
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "SetDescription",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "description",
-        "type": "string",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "SetForkPrice",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "SetTitle",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true
-      },
-      {
-        "name": "title",
-        "type": "string",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Transfer",
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "to",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Withdraw",
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address",
-        "indexed": true
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false
-      }
-    ],
-    "anonymous": false
+    "inputs": [],
+    "name": "withdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ]
