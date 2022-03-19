@@ -99,6 +99,7 @@ export function handlePay(event: PayEvent): void {
   pay.amount = amount;
   pay.purpose = purpose === 0 ? "Fork" : "Donate";
   pay.createdAt = event.block.timestamp;
+  pay.txHash = txHash;
   pay.save();
 
   // update account
