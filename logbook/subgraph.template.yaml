@@ -23,7 +23,11 @@ dataSources:
       entities:
         - Logbook
         - Log
+        - Publication
         - Account
+        - Fork
+        - Donation
+        - Pay
       abis:
         - name: Logbook
           file: ./abis/Logbook.json
