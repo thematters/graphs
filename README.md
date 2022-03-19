@@ -92,5 +92,6 @@ npm run codegen -- -o logbook/generated/ logbook/subgraph.yaml
 npm run build -- -o logbook/build/ logbook/subgraph.yaml
 
 # Deploy
-npm run deploy -- -o logbook/build/ thematters/logbook-mumbai logbook/subgraph.yaml
+npm run deploy:logobok:polygon-mumbai
+npm run deploy:logobok:polygon-mainnet
 ```

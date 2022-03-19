@@ -7,10 +7,15 @@
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/",
     "create-local": "graph create --node http://localhost:8020/",
     "remove-local": "graph remove --node http://localhost:8020/",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001"
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001",
+    "deploy:logobok:polygon-mainnet": "mustache logbook/configs/polygon-mainnet.json logbook/subgraph.template.yaml > logbook/subgraph.yaml.tmp && npm run deploy -- -o logbook/build/ thematters/logbook logbook/subgraph.yaml.tmp",
+    "deploy:logobok:polygon-mumbai": "mustache logbook/configs/polygon-mumbai.json logbook/subgraph.template.yaml > logbook/subgraph.yaml.tmp && npm run deploy -- -o logbook/build/ thematters/logbook-mumbai logbook/subgraph.yaml.tmp"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.25.1",
     "@graphprotocol/graph-ts": "0.24.1"
+  },
+  "devDependencies": {
+    "mustache": "^4.2.0"
   }
 }
