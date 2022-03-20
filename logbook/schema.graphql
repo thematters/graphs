@@ -5,8 +5,8 @@ type Logbook @entity {
   # owner address
   owner: Account!
 
-  # base64 encoded SVG
-  cover: String!
+  # base64 encoded tokenURI
+  tokenURI: String!
 
   # block.timestamp of token mint
   createdAt: BigInt!
@@ -18,7 +18,9 @@ type Logbook @entity {
   description: String!
   forkPrice: BigInt!
 
-  publications: [Publication!]! @derivedFrom(field: "logbook")
+  parent: Logbook
+
+  publications: [Publication!]!
   forks: [Fork!]! @derivedFrom(field: "from")
   donations: [Donation!]! @derivedFrom(field: "to")
 
@@ -43,8 +45,13 @@ type Log @entity {
   # logbooks that have this log
   logbooks: [Logbook!]!
 
+  logbookCount: BigInt!
+
   # block.timestamp of log creation
   createdAt: BigInt!
+
+  # transaction hash
+  txHash: String!
 }
 
 type Publication @entity {
@@ -53,10 +60,19 @@ type Publication @entity {
 
   log: Log!
 
-  logbook: Logbook!
+  # logbook that first published to
+  source: Logbook
+
+  # logbooks that have this log
+  logbooks: [Logbook!]!
+
+  logbookCount: BigInt!
 
   # block.timestamp of publish event
   createdAt: BigInt!
+
+  # transaction hash
+  txHash: String!
 }
 
 type Account @entity {
@@ -83,6 +99,9 @@ type Fork @entity {
 
   # block.timestamp
   createdAt: BigInt!
+
+  # transaction hash
+  txHash: String!
 }
 
 type Donation @entity {
@@ -97,6 +116,9 @@ type Donation @entity {
 
   # block.timestamp
   createdAt: BigInt!
+
+  # transaction hash
+  txHash: String!
 }
 
 type Pay @entity {
@@ -114,6 +136,9 @@ type Pay @entity {
 
   # block.timestamp
   createdAt: BigInt!
+
+  # transaction hash
+  txHash: String!
 }
 
 enum RoyaltyPurpose {

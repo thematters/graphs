@@ -4,9 +4,10 @@ We use [The Graph](https://thegraph.com/) to index [contract](https://github.com
 
 ## Subgraphs
 
-| Name    | Network        | Playground URL                                                         | API Endpoint                                                      |
-| ------- | -------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Logbook | Polygon Mumbai | https://thegraph.com/hosted-service/subgraph/thematters/logbook-mumbai | https://api.thegraph.com/subgraphs/name/thematters/logbook-mumbai |
+| Name    | Network         | Playground URL                                                         | API Endpoint                                                      |
+| ------- | --------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Logbook | Polygon Mumbai  | https://thegraph.com/hosted-service/subgraph/thematters/logbook-mumbai | https://api.thegraph.com/subgraphs/name/thematters/logbook-mumbai |
+| Logbook | Polygon Mainnet | https://thegraph.com/hosted-service/subgraph/thematters/logbook        | https://api.thegraph.com/subgraphs/name/thematters/logbook        |
 
 ### GraphQL Schema
 
@@ -82,15 +83,21 @@ Install dependencies
 npm install
 ```
 
+Codegen
+
+```bash
+npm run codegen:logbook
+```
+
+Build
+
+```bash
+npm run build:logbook
+```
+
 ## Deploy
 
 ```bash
-# Codegen
-npm run codegen -- -o logbook/generated/ logbook/subgraph.yaml
-
-# Build
-npm run build -- -o logbook/build/ logbook/subgraph.yaml
-
-# Deploy
-npm run deploy -- -o logbook/build/ thematters/logbook-mumbai logbook/subgraph.yaml
+npm run deploy:logobok:polygon-mumbai
+npm run deploy:logobok:polygon-mainnet
 ```

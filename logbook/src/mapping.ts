@@ -1,3 +1,4 @@
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
   Donate,
   Fork as ForkEvent,
@@ -8,7 +9,8 @@ import {
   SetForkPrice,
   SetTitle,
   Transfer,
-  Withdraw
+  Withdraw,
+  Logbook as LogbookContract
 } from "../generated/Logbook/Logbook";
 import {
   Logbook,
@@ -19,7 +21,13 @@ import {
   Pay,
   Publication
 } from "../generated/schema";
-import { getOrCreateAccount, ONE_BI, ZERO_ADDRESS, ZERO_BI } from "./helpers";
+import {
+  getOrCreateAccount,
+  getTokenURI,
+  ONE_BI,
+  ZERO_ADDRESS,
+  ZERO_BI
+} from "./helpers";
 
 export function handleDonate(event: Donate): void {
   const logbookId = event.params.tokenId.toHexString();
@@ -32,6 +40,7 @@ export function handleDonate(event: Donate): void {
   donation.donor = donor.id;
   donation.amount = event.params.amount;
   donation.createdAt = event.block.timestamp;
+  donation.txHash = txHash;
   donation.save();
 
   // update logbook
@@ -45,30 +54,76 @@ export function handleDonate(event: Donate): void {
 export function handleFork(event: ForkEvent): void {
   const fromLogbookId = event.params.tokenId.toHexString();
   const toLogbookId = event.params.newTokenId.toHexString();
-  const endLogId = event.params.end.toHexString();
+  const txHash = event.transaction.hash.toHexString();
+
+  // get logs of `to` logbook
+  const logbookContract = LogbookContract.bind(event.address);
+  const toLogs = logbookContract.getLogs(event.params.newTokenId);
+  const toContentHashes = toLogs.value0;
+  const toLogCount = toContentHashes.length;
+  const toLastLogId = toContentHashes[toLogCount - 1].toHexString();
 
   // create fork
   const forkId = `${fromLogbookId}-${toLogbookId}`;
   let fork = new Fork(forkId);
   fork.from = fromLogbookId;
   fork.to = toLogbookId;
-  fork.end = endLogId;
+  fork.end = toLastLogId;
   fork.amount = event.params.amount;
   fork.createdAt = event.block.timestamp;
+  fork.txHash = txHash;
   fork.save();
 
   // update "from" logbook
-  let logbook = Logbook.load(fromLogbookId);
-  if (logbook) {
-    logbook.forkCount = logbook.forkCount.plus(ONE_BI);
-    logbook.save();
+  let fromLogbook = Logbook.load(fromLogbookId);
+  if (fromLogbook) {
+    fromLogbook.forkCount = fromLogbook.forkCount.plus(ONE_BI);
+    fromLogbook.save();
   }
 
-  // update log
-  let log = Log.load(endLogId);
-  if (log) {
-    log.logbooks = log.logbooks.concat([toLogbookId]);
-    log.save();
+  // update "to" logbook
+  let toLogbook = Logbook.load(toLogbookId);
+
+  if (toLogbook) {
+    toLogbook.parent = fromLogbookId;
+
+    // copy from parent
+    if (fromLogbook) {
+      // title & description
+      toLogbook.title = fromLogbook.title;
+      toLogbook.description = fromLogbook.description;
+
+      // publications
+      const toPublications = fromLogbook.publications.slice(0, toLogCount);
+      toLogbook.publications = toPublications;
+      toLogbook.publicationCount = BigInt.fromI32(toLogCount);
+    }
+
+    toLogbook.save();
+  }
+
+  // update logs
+  for (let i = 0; i < toLogCount; i++) {
+    const log = Log.load(toContentHashes[i].toHexString());
+    if (log) {
+      log.logbooks = log.logbooks.concat([toLogbookId]);
+      log.logbookCount = log.logbookCount.plus(ONE_BI);
+      log.save();
+    }
+  }
+
+  // update publications
+  if (fromLogbook) {
+    const toPublications = fromLogbook.publications.slice(0, toLogCount);
+
+    for (let i = 0; i < toLogCount; i++) {
+      const publication = Publication.load(toPublications[i]);
+      if (publication) {
+        publication.logbooks = publication.logbooks.concat([toLogbookId]);
+        publication.logbookCount = publication.logbookCount.plus(ONE_BI);
+        publication.save();
+      }
+    }
   }
 }
 
@@ -90,6 +145,7 @@ export function handlePay(event: PayEvent): void {
   pay.amount = amount;
   pay.purpose = purpose === 0 ? "Fork" : "Donate";
   pay.createdAt = event.block.timestamp;
+  pay.txHash = txHash;
   pay.save();
 
   // update account
@@ -100,6 +156,7 @@ export function handlePay(event: PayEvent): void {
 export function handleContent(event: Content): void {
   const logId = event.params.contentHash.toHexString();
   const author = getOrCreateAccount(event.params.author);
+  const txHash = event.transaction.hash.toHexString();
 
   // create log
   let log = Log.load(logId);
@@ -109,7 +166,9 @@ export function handleContent(event: Content): void {
     log.content = event.params.content;
     log.source = null;
     log.logbooks = [];
+    log.logbookCount = ZERO_BI;
     log.createdAt = event.block.timestamp;
+    log.txHash = txHash;
     log.save();
   }
 }
@@ -126,16 +185,21 @@ export function handlePublish(event: Publish): void {
   if (publication === null) {
     publication = new Publication(publicationId);
     publication.log = logId;
-    publication.logbook = logbookId;
+    publication.source = logbookId;
+    publication.logbooks = [logbookId];
+    publication.logbookCount = ONE_BI;
     publication.createdAt = event.block.timestamp;
+    publication.txHash = txHash;
     publication.save();
   }
 
   // update logbook
   let logbook = Logbook.load(logbookId);
   if (logbook) {
-    logbook.loggedAt = event.block.timestamp;
+    logbook.tokenURI = getTokenURI(event.params.tokenId, event.address);
+    logbook.publications = logbook.publications.concat([publicationId]);
     logbook.publicationCount = logbook.publicationCount.plus(ONE_BI);
+    logbook.loggedAt = event.block.timestamp;
     logbook.save();
   }
 
@@ -147,6 +211,7 @@ export function handlePublish(event: Publish): void {
     }
 
     log.logbooks = log.logbooks.concat([logbookId]);
+    log.logbookCount = log.logbookCount.plus(ONE_BI);
     log.save();
   }
 }
@@ -189,12 +254,13 @@ export function handleTransfer(event: Transfer): void {
   let logbook = Logbook.load(logbookId);
   if (logbook === null) {
     logbook = new Logbook(logbookId);
-    logbook.cover = ""; // TODO
     logbook.createdAt = event.block.timestamp;
     logbook.loggedAt = null;
     logbook.title = "";
     logbook.description = "";
     logbook.forkPrice = ZERO_BI;
+    logbook.parent = null;
+    logbook.publications = [];
     logbook.publicationCount = ZERO_BI;
     logbook.forkCount = ZERO_BI;
     logbook.donationCount = ZERO_BI;
@@ -202,6 +268,7 @@ export function handleTransfer(event: Transfer): void {
   } else {
     logbook.transferCount = logbook.transferCount.plus(ONE_BI);
   }
+  logbook.tokenURI = getTokenURI(event.params.tokenId, event.address);
   logbook.owner = to.id;
   logbook.save();
 }
