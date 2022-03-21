@@ -1,5 +1,5 @@
 specVersion: 0.0.4
-description: Logbook is a collaborative content creation dApp on Polygon.
+description: Logbook 2.0, the NFT that empowers collective collection beyond private ownership, issued by Matters Lab.
 repository: https://github.com/thematters/subgraphs
 schema:
   file: ./schema.graphql
