@@ -1,4 +1,4 @@
-# The Graph subgraphs of Matters
+# The Graph subgraphs of Matters Lab
 
 We use [The Graph](https://thegraph.com/) to index [contract](https://github.com/thematters/contracts) data, for better query performance. And it's a [GraphQL](https://graphql.org/) API, more flexible than RESTful API.
 
